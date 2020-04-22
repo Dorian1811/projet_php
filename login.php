@@ -1,3 +1,77 @@
+<?php
+
+    require 'function.php';
+
+    session_start();
+
+    if(!isConnected())
+    {
+        
+        if(
+            isset($_POST['email']) &&
+            isset($_POST['password'])
+        ){
+            if(!filter_var($_POST["email"] , FILTER_VALIDATE_EMAIL))
+            {
+                $error[] = 'Email invalide';
+            }
+
+            if(!preg_match('/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[ !"#$%&\'()*+,\-\.\/:;<=>?\\\\@[\]\^_`{|}~]).{8,1000}$/', $_POST['password']))
+            {
+                $errors[] = 'Mot de passe doit contenir minimum 1 maj, 1 min, 1 chiffre et un caractere special !';
+            }
+
+
+            if(!isset($errors))
+            {
+
+                try
+                {
+                    $bdd = new PDO('mysql:host=localhost;dbname=projet_php;charset=utf8', 'root', '');
+                    $bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                }catch (Exception $e){
+
+                    die('Il y a un problème avec le bdd : ' . $e->getMessage());
+
+                }
+
+                $response = $bdd->prepare("SELECT * FROM users WHERE email = ?");
+
+                $response->execute([
+                    $_POST['email']
+                ]);
+
+                $user = $response->fetch(PDO::FETCH_ASSOC);
+
+                // Verif si compte existe
+                if(empty($user)){
+                    $errors[] = 'Ce compte n\'existe pas !';
+                } else {
+
+                    // Verif du mot de passe
+                    if(!password_verify($_POST['password'], $user['password'])){
+                        $errors[] = 'Mauvais mot de passe !';
+                    } else {
+
+                        $successMessage = '<p class="alert alert-success col-12">Connexion réussi !<a href="index.php"> Cliquez ici</a> pour revenir à l\'accueil</p> ';
+
+                        // Stockage des infos de l'utilisateur en session
+                        $_SESSION['user'] = $user;
+
+                    }
+
+                }
+
+                $response->closeCursor();
+
+            }
+
+        }
+    }
+?>
+
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -10,34 +84,9 @@
 
     <body>
 
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-
-            <a href="index.php" class="navbar-brand">LessWheels</a>
-
-            <div id="mainNavbarCollapsible" class="collapse navbar-collapse">
-
-                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-
-                    <li class="nav-item"><a class="nav-link" href="index.php">Accueil</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="articles.php">Articles</a></li>
-
-                    <li class="nav-item active"><a class="nav-link" href="login.php">Connexion</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="register.php">Inscription</a></li>
-
-                </ul>
-
-                <form class="form-inline my-2 my-lg-0" method="GET" action="">
-
-                    <input class="form-control mr-sm-2" type="text" placeholder="Vous chercher un article ?" name="query">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-
-                </form>
-            </div>
-        </nav>
+        <?php
+            include 'menu.php';
+        ?>
 
 
         <div class="container">
@@ -45,30 +94,60 @@
                 <h1 class="text-center col-12 mt-5">Connexion</h1>
             </div>
 
-            <div class="row">
 
-                <form action="login.php" method="POST" class="col-12 col-md-6 offset-md-3 my-5">
+            <?php
 
-                    <div class="form-group">
+                if(isset($errors))
+                {
+                    foreach($errors as $error)
+                    {
+                        echo'<p style="color:red;"> ' . $error . '</p>';
+                    }
+                }
 
-                        <label for="email">Email</label>
-                        <input type="email" value="" class="form-control" name="email" placeholder="alice@exemple.com">
+                if(isset($successMessage))
+                {
+                    echo'<p style="color:green;">' . $successMessage . '</p>';
+                }else {
 
-                    </div>
+                    if(!isConnected()){
+            ?>        
 
-                    <div class="form-group">
+                <div class="row">
 
-                        <label for="password">Mot de passe</label>
-                        <input type="password" name="password" class="form-control">
+                    <form action="login.php" method="POST" class="col-12 col-md-6 offset-md-3 my-5">
 
-                    </div>
+                        <div class="form-group">
 
-                    <input type="submit" value="Connexion" class="btn btn-success col-12 my-2">
+                            <label for="email">Email</label>
+                            <input type="email" value="" class="form-control" name="email" placeholder="alice@exemple.com">
 
-                </form>
+                        </div>
 
-            </div>    
+                        <div class="form-group">
+
+                            <label for="password">Mot de passe</label>
+                            <input type="password" name="password" class="form-control">
+
+                        </div>
+
+                        
+                        <input type="submit" value="Connexion" class="btn btn-success col-12 my-2">
+
+                    </form>
+
+                </div>    
         </div>
+                <?php
+
+                    }else{
+                            
+                        echo'<p style="color:red;">Vous êtes déjà connecté !</p>';
+                        
+                    }
+                }
+
+                ?>
 
 
         <script src="js/jquery-3.3.1.slim.min.js"></script>

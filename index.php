@@ -1,3 +1,7 @@
+<?php
+    session_start();
+?>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -10,34 +14,9 @@
 
     <body>
 
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-
-            <a href="index.php" class="navbar-brand">LessWheels</a>
-
-            <div id="mainNavbarCollapsible" class="collapse navbar-collapse">
-
-                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-
-                    <li class="nav-item active"><a class="nav-link" href="index.php">Accueil</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="articles.php">Articles</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="login.php">Connexion</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="register.php">Inscription</a></li>
-
-                </ul>
-
-                <form class="form-inline my-2 my-lg-0" method="GET" action="">
-
-                    <input class="form-control mr-sm-2" type="text" placeholder="Vous chercher un article ?" name="query">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-
-                </form>
-            </div>
-        </nav>
+        <?php
+            include 'menu.php';
+        ?>
 
         <div class="container">
 
@@ -58,7 +37,7 @@
 
                         <div class="card-body">
                             C'est pas très étonnant ! Lorem ipsum dolor... 
-                            <a href="">Lire la suite</a>
+                            <a href="http://localhost/projet_php/article1.php">Lire la suite</a>
                         </div>
 
                         <div class="card-footer text-muted">
@@ -73,7 +52,7 @@
 
                         <div class="card-body">
                             La nouvelle Peugeot sans roues est enfin sortie ! ... 
-                            <a href="">Lire la suite</a>
+                            <a href="http://localhost/projet_php/article2.php">Lire la suite</a>
                         </div>
 
                         <div class="card-footer text-muted">
@@ -83,10 +62,6 @@
                     </div>
         
                 </div>
-
-
-
-
 
             </div>
         </div>

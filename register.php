@@ -1,12 +1,16 @@
-<!--
+<?php
 
+    require '../recaptchavalid.php';
+
+    session_start();
 
     if(
         isset($_POST['email']) &&
         isset($_POST['password']) &&
         isset($_POST['confirm-password']) &&
         isset($_POST['firstname']) &&
-        isset($_POST['lastname'])
+        isset($_POST['lastname']) &&
+        isset($_POST['g-recaptcha-response'])
     ){
 
         if(!filter_var($_POST["email"] , FILTER_VALIDATE_EMAIL))
@@ -34,12 +38,22 @@
             $errors[] = 'Nom invalide';
         }
 
+        if(!recaptcha_valid($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']))
+        {
+            $errors[] = 'Captcha invalide';
+        }
+
+        if(!isset($errors))
+        {
+            $successMessage = 'Formulaire envoyé !';
+        }
+
         if(!isset($errors))
         {
 
             try
             {
-                $bdd = new PDO('mysql:host=localhost;dbname=exercice;charset=utf8', 'root', '');
+                $bdd = new PDO('mysql:host=localhost;dbname=projet_php;charset=utf8', 'root', '');
                 $bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
             }catch (Exception $e){
@@ -48,13 +62,14 @@
 
             }
 
-            $response = $bdd->prepare('INSERT INTO users (email, password, firstname, register_date) VALUES (?, ?, ?, ?) ');
+            $response = $bdd->prepare('INSERT INTO users (email, password, firstname, lastname, register_date) VALUES (?, ?, ?, ?, ?) ');
 
             $response->execute([
                 
                 $_POST['email'],
                 password_hash($_POST['password'], PASSWORD_BCRYPT),
                 $_POST['firstname'],
+                $_POST['lastname'],
                 date('Y-m-d H:i:s')
             
             ]);
@@ -72,7 +87,8 @@
 
     }
     
--->
+?>
+
 
 <!DOCTYPE html>
 <html>
@@ -87,34 +103,26 @@
 
     <body>
 
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <?php
+            include 'menu.php';
+        ?>
 
-            <a href="index.php" class="navbar-brand">LessWheels</a>
 
-            <div id="mainNavbarCollapsible" class="collapse navbar-collapse">
 
-                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        <?php
+            if(isset($errors))
+            {
+                foreach($errors as $error)
+                {
+                    echo '<p style="color:red;">' . $error . '</p>';
+                } 
+            }
 
-                    <li class="nav-item"><a class="nav-link" href="index.php">Accueil</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="articles.php">Articles</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="login.php">Connexion</a></li>
-
-                    <li class="nav-item active"><a class="nav-link" href="register.php">Inscription</a></li>
-
-                </ul>
-
-                <form class="form-inline my-2 my-lg-0" method="GET" action="">
-
-                    <input class="form-control mr-sm-2" type="text" placeholder="Vous chercher un article ?" name="query">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-
-                </form>
-            </div>
-        </nav>
+            if(isset($successMessage))
+            {
+                echo '<p style="color:green;">' . $successMessage . '</p>';
+            } else {
+        ?>
 
         <div class="container">
             <div class="row">
@@ -169,6 +177,9 @@
             </form>
         </div>
 
+        <?php
+        }
+        ?>
 
         <script src="js/jquery-3.3.1.slim.min.js"></script>
         <script src="js/popper.min.js"></script>
