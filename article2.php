@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="css/bootstrap.min.css">
         <link rel="stylesheet" href="css/projet_index.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css">
-        <title>LessWheels - Inscription</title>
+        <title>LessWheels - Article2</title>
     </head>
 
     <body>

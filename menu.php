@@ -26,6 +26,13 @@
                     <li class="nav-item"><a class="nav-link" href="register.php">Inscription</a></li>
                     <?php 
                 }
+                
+                if(isset($_SESSION['user']['admin'])){
+                    ?>
+
+                    <li class="nav-item"><a class="nav-link" href="article1.php">Admin</a></li>
+                    <?php
+                }
             ?>
 
         </ul>
